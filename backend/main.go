@@ -93,6 +93,18 @@ func getAllTasks(w http.ResponseWriter, r *http.Request) {
 		tasks = append(tasks, task)
 	}
 
+	// Search
+	query := r.URL.Query().Get("search")
+	if query != "" {
+		tasks = searchTasks(tasks, query)
+	}
+
+	// Sort
+	sortBy := r.URL.Query().Get("sort")
+	if sortBy != "" {
+		tasks = sortTasks(tasks, sortBy)
+	}
+
 	json.NewEncoder(w).Encode(tasks)
 }
 

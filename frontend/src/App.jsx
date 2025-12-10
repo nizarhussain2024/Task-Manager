@@ -8,6 +8,8 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('created_at')
   const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium' })
 
   useEffect(() => {
@@ -18,7 +20,12 @@ function App() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch(`${API_URL}/tasks`)
+      const params = new URLSearchParams()
+      if (searchQuery) params.append('search', searchQuery)
+      if (sortBy) params.append('sort', sortBy)
+      
+      const url = `${API_URL}/tasks${params.toString() ? '?' + params.toString() : ''}`
+      const response = await fetch(url)
       if (!response.ok) throw new Error('Failed to fetch tasks')
       const data = await response.json()
       setTasks(data)
@@ -29,6 +36,10 @@ function App() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchTasks()
+  }, [searchQuery, sortBy])
 
   const filteredTasks = tasks.filter(task => {
     if (filter === 'all') return true
@@ -111,12 +122,25 @@ function App() {
         <section className="task-list">
           <div className="task-list-header">
             <h2>Tasks ({filteredTasks.length})</h2>
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
+            <div className="controls">
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="created_at">Sort by Date</option>
+                <option value="priority">Sort by Priority</option>
+              </select>
+            </div>
           </div>
           {error && <div className="error-message">{error}</div>}
           {loading ? (
