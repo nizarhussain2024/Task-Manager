@@ -34,6 +34,21 @@ var idCounter int64
 func main() {
 	http.HandleFunc("/api/tasks", corsMiddleware(loggingMiddleware(tasksHandler)))
 	http.HandleFunc("/api/tasks/", corsMiddleware(loggingMiddleware(taskHandler)))
+	http.HandleFunc("/api/tasks/search", corsMiddleware(loggingMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		query := r.URL.Query().Get("q")
+		if query == "" {
+			http.Error(w, "Query parameter 'q' is required", http.StatusBadRequest)
+			return
+		}
+		results := searchTasks(query)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(results)
+	})))
+	http.HandleFunc("/api/tasks/export", corsMiddleware(loggingMiddleware(exportTasksHandler)))
 	http.HandleFunc("/health", healthHandler)
 
 	fmt.Println("Task Manager Backend running on :8080")
