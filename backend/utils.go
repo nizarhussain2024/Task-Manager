@@ -1,49 +1,37 @@
 package main
 
 import (
-	"strings"
-	"time"
+	"encoding/json"
+	"net/http"
 )
 
-func searchTasks(tasks []*Task, query string) []*Task {
-	if query == "" {
-		return tasks
-	}
-	
-	query = strings.ToLower(query)
-	var results []*Task
-	
-	for _, task := range tasks {
-		if strings.Contains(strings.ToLower(task.Title), query) ||
-			strings.Contains(strings.ToLower(task.Description), query) {
-			results = append(results, task)
-		}
-	}
-	
-	return results
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"error": message})
 }
 
-func sortTasks(tasks []*Task, sortBy string) []*Task {
-	switch sortBy {
-	case "created_at":
-		// Sort by creation date (newest first)
-		for i := 0; i < len(tasks)-1; i++ {
-			for j := i + 1; j < len(tasks); j++ {
-				if tasks[i].CreatedAt.Before(tasks[j].CreatedAt) {
-					tasks[i], tasks[j] = tasks[j], tasks[i]
-				}
-			}
-		}
-	case "priority":
-		priorityOrder := map[string]int{"high": 3, "medium": 2, "low": 1}
-		for i := 0; i < len(tasks)-1; i++ {
-			for j := i + 1; j < len(tasks); j++ {
-				if priorityOrder[tasks[i].Priority] < priorityOrder[tasks[j].Priority] {
-					tasks[i], tasks[j] = tasks[j], tasks[i]
-				}
-			}
-		}
-	}
-	return tasks
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, _ := json.Marshal(payload)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
 }
 
+func isValidStatus(status string) bool {
+	validStatuses := []string{"pending", "in-progress", "completed"}
+	for _, s := range validStatuses {
+		if status == s {
+			return true
+		}
+	}
+	return false
+}
+
+func isValidPriority(priority string) bool {
+	validPriorities := []string{"low", "medium", "high"}
+	for _, p := range validPriorities {
+		if priority == p {
+			return true
+		}
+	}
+	return false
+}
