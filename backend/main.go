@@ -49,6 +49,7 @@ func main() {
 		json.NewEncoder(w).Encode(results)
 	})))
 	http.HandleFunc("/api/tasks/export", corsMiddleware(loggingMiddleware(exportTasksHandler)))
+	http.HandleFunc("/api/tasks/stats", corsMiddleware(loggingMiddleware(statsHandler)))
 	http.HandleFunc("/health", healthHandler)
 
 	fmt.Println("Task Manager Backend running on :8080")
