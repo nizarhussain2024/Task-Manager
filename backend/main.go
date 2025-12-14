@@ -116,10 +116,17 @@ func getAllTasks(w http.ResponseWriter, r *http.Request) {
 		tasks = searchTasks(tasks, query)
 	}
 
-	// Sort
+	// Apply sorting if requested
 	sortBy := r.URL.Query().Get("sort")
-	if sortBy != "" {
-		tasks = sortTasks(tasks, sortBy)
+	switch sortBy {
+	case "created_asc":
+		tasks = sortTasksByCreated(tasks, true)
+	case "created_desc":
+		tasks = sortTasksByCreated(tasks, false)
+	case "priority":
+		tasks = sortTasksByPriority(tasks)
+	case "status":
+		tasks = sortTasksByStatus(tasks)
 	}
 
 	json.NewEncoder(w).Encode(tasks)
