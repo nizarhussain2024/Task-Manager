@@ -116,6 +116,21 @@ func getAllTasks(w http.ResponseWriter, r *http.Request) {
 		tasks = searchTasks(tasks, query)
 	}
 
+	// Apply filters
+	statusFilter := r.URL.Query().Get("status")
+	priorityFilter := r.URL.Query().Get("priority")
+	dueDateFilter := r.URL.Query().Get("due_date")
+
+	if statusFilter != "" {
+		tasks = filterTasksByStatus(tasks, statusFilter)
+	}
+	if priorityFilter != "" {
+		tasks = filterTasksByPriority(tasks, priorityFilter)
+	}
+	if dueDateFilter != "" {
+		tasks = filterTasksByDueDate(tasks, dueDateFilter)
+	}
+
 	// Apply sorting if requested
 	sortBy := r.URL.Query().Get("sort")
 	switch sortBy {
