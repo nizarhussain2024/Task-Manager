@@ -17,6 +17,7 @@ type Task struct {
 	Status      string     `json:"status"`
 	Priority    string     `json:"priority"`
 	DueDate     *time.Time `json:"due_date,omitempty"`
+	Tags        []string   `json:"tags,omitempty"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
