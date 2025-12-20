@@ -265,3 +265,12 @@ docker-compose up --build
 - [ ] File attachments
 - [ ] Search and filtering
 - [ ] Task reminders and notifications
+
+## AI/NLP Capabilities
+
+This project includes AI and NLP utilities for:
+- Text processing and tokenization
+- Similarity calculation
+- Natural language understanding
+
+*Last updated: 2025-12-20*
